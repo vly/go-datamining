@@ -1,4 +1,13 @@
-go-recommend
-============
+Data mining with Go
+===================
 
-Basic implementation of recommendation algorithms in Golang
+A collection of algorithms for data processing in Go.
+
+### Recommendations
+Basic implementation of recommendation algorithms in Golang.
+
+For testing, I am using GroupLens Research's MovieLens dataset from [http://grouplens.org/datasets/movielens/](http://grouplens.org/datasets/movielens/) (...Thanks guys!).  Please consult their terms of use if you wish to use this set for commercial purposes.
+
+#### Algorithms covered:
+- Euclidean distance
+- Pearson correlation
