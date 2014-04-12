@@ -2,49 +2,15 @@
 
 package godatamining
 
-import (
-	"encoding/csv"
-	"fmt"
-	"io"
-	"os"
-)
-
 type OneR struct {
-	Data *[][]string
+	Data       *[][]string
+	MinBuckets int
 }
 
 type Result struct {
 	Key        string
 	TotalError float32
 	Rules      *map[string]float32
-}
-
-func (oner *OneR) FromCSV(filename string) error {
-	csvFile, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer csvFile.Close()
-	reader := csv.NewReader(csvFile)
-	reader.Comma = ','
-	lineCount := 0
-	records := new([][]string)
-	for {
-
-		record, err := reader.Read()
-
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			fmt.Println("Error:", err)
-			return err
-		}
-		*records = append(*records, record)
-		lineCount += 1
-	}
-	oner.Data = records
-	return err
-
 }
 
 func (oner *OneR) getKeyLoc(key string) (int, bool) {
@@ -67,7 +33,6 @@ func (oner *OneR) GetInstance(key string) (results map[string]map[string]int, ok
 	results = make(map[string]map[string]int)
 
 	for i := 1; i < len(*oner.Data); i++ {
-		// fmt.Println((*oner.Data)[i][loc], (*oner.Data)[i][resultloc])
 		if _, ok := results[(*oner.Data)[i][loc]]; !ok {
 			results[(*oner.Data)[i][loc]] = map[string]int{
 				(*oner.Data)[i][resultloc]: 1}
@@ -112,7 +77,7 @@ func (oner *OneR) GetErrorRate(key string) (*map[string]float32, bool) {
 		for a, b := range *rules {
 			mistakes := 0
 			instances := 0
-			for i := 0; i < n; i++ {
+			for i := 1; i < n; i++ {
 				if (*oner.Data)[i][loc] == a {
 					instances += 1
 					if (*oner.Data)[i][resultloc] != b {
@@ -120,7 +85,7 @@ func (oner *OneR) GetErrorRate(key string) (*map[string]float32, bool) {
 					}
 				}
 			}
-			output[a] = float32(mistakes) / float32(instances)
+			output[a] = float32(mistakes) / float32(n-1)
 		}
 		return &output, true
 	}

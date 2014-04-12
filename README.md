@@ -16,4 +16,5 @@ For testing, I am using GroupLens Research's MovieLens dataset from [http://grou
 
 #### Algorithms included:
 - ZeroR
-- OneR
+- OneR (missing discretisation of numeric values)
+- c4.5 / j48

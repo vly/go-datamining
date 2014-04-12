@@ -8,9 +8,11 @@ import (
 func initZeroR() (*ZeroR, bool) {
 	csv_file := "datasets/lenses.csv"
 	z := new(ZeroR)
-	if err := z.FromCSV(csv_file); err != nil {
+	data, err := FromCSV(csv_file)
+	if err != nil {
 		return z, false
 	}
+	z.Data = data
 	return z, true
 }
 

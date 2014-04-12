@@ -1,42 +1,7 @@
 package godatamining
 
-import (
-	"encoding/csv"
-	"fmt"
-	"io"
-	"os"
-)
-
 type ZeroR struct {
 	Data *[][]string
-}
-
-func (z *ZeroR) FromCSV(filename string) error {
-	csvFile, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer csvFile.Close()
-	reader := csv.NewReader(csvFile)
-	reader.Comma = ','
-	lineCount := 0
-	records := new([][]string)
-	for {
-
-		record, err := reader.Read()
-
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			fmt.Println("Error:", err)
-			return err
-		}
-		*records = append(*records, record)
-		lineCount += 1
-	}
-	z.Data = records
-	return err
-
 }
 
 func (z *ZeroR) getKeyLoc(key string) (int, bool) {
@@ -84,7 +49,7 @@ func (z *ZeroR) GetErrorRate(key string) (*Result, bool) {
 			}
 
 		}
-		output := float32(mistakes) / float32(n)
+		output := float32(mistakes) / float32(n-1)
 		out := &Result{key, output, &map[string]float32{rule: output}}
 		return out, true
 	}

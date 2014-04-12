@@ -8,9 +8,11 @@ import (
 func initOneR() (*OneR, bool) {
 	csv_file := "datasets/lenses.csv"
 	oner := new(OneR)
-	if err := oner.FromCSV(csv_file); err != nil {
+	data, err := FromCSV(csv_file)
+	if err != nil {
 		return oner, false
 	}
+	oner.Data = data
 	return oner, true
 }
 
@@ -43,7 +45,7 @@ func TestGetErrorRate(t *testing.T) {
 		t.Fail()
 	}
 
-	if _, ok := r.GetErrorRate("Prescription"); !ok {
+	if _, ok := r.GetErrorRate("Tears"); !ok {
 		t.Fail()
 	}
 }
