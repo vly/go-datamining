@@ -1,4 +1,4 @@
-package gorecommend
+package godatamining
 
 import (
 	"log"
@@ -6,7 +6,6 @@ import (
 )
 
 func TestGetDistance(t *testing.T) {
-	log.Println("Running GetDistance test")
 	data := map[string]map[string]int{
 		"p1": map[string]int{
 			"item1": 83,
@@ -28,7 +27,8 @@ func TestGetDistance(t *testing.T) {
 			"item4": 28,
 		},
 	}
-	if _, ok := GetDistance(data, "p1", "p2"); !ok {
+	e := &Euclidean{data}
+	if _, ok := e.GetDistance("p1", "p2"); !ok {
 		t.Fatalf("Error: %s \n", "Failed to get distance.")
 	}
 }
@@ -55,7 +55,8 @@ func TestGetDistances(t *testing.T) {
 			"item4": 28,
 		},
 	}
-	output, ok := GetDistances(data)
+	e := &Euclidean{data}
+	output, ok := e.GetDistances()
 	if !ok {
 		t.Fatalf("Error: %s \n", "Failed to get distances.")
 	}

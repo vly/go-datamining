@@ -1,0 +1,13 @@
+Age,Prescription,Astigmatic,Tears,Lenses
+8,myope,no,reduced,NO
+12,myope,yes,normal,HARD
+10,hypermetrope,no,normal,SOFT
+14,hypermetrope,yes,reduced,NO
+15,myope,no,normal,SOFT
+24,myope,yes,reduced,NO
+35,hypermetrope,yes,reduced,NO
+55,hypermetrope,yes,normal,NO
+56,myope,no,normal,NO
+60,myope,yes,normal,HARD
+65,hypermetrope,no,reduced,NO
+72,hypermetrope,no,normal,SOFT
