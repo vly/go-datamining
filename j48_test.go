@@ -28,7 +28,7 @@ func TestGetFrequency(t *testing.T) {
 func TestGetInfo(t *testing.T) {
 	// get entropy
 	if j, ok := initJ48(); ok {
-		if out, ok := j.GetInfo("Tears"); ok {
+		if out, ok := j.GetInfo(j.Data, "Tears"); ok {
 			log.Println(out)
 			return
 		}
