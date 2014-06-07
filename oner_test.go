@@ -1,9 +1,12 @@
 package godatamining
 
 import (
+	"fmt"
 	"log"
 	"testing"
 )
+
+const class = "Lenses"
 
 func initOneR() (*OneR, bool) {
 	csv_file := "datasets/lenses.csv"
@@ -22,7 +25,7 @@ func TestGetInstance(t *testing.T) {
 		t.Fail()
 	}
 
-	if _, ok := r.GetInstance("Prescription"); !ok {
+	if _, ok := r.GetInstance("Prescription", class); !ok {
 		t.Fail()
 	}
 
@@ -34,7 +37,7 @@ func TestGetRules(t *testing.T) {
 		t.Fail()
 	}
 
-	if _, ok := r.GetRules("Prescription"); !ok {
+	if _, ok := r.GetRules("Prescription", class); !ok {
 		t.Fail()
 	}
 }
@@ -45,7 +48,7 @@ func TestGetErrorRate(t *testing.T) {
 		t.Fail()
 	}
 
-	if _, ok := r.GetErrorRate("Tears"); !ok {
+	if _, ok := r.GetErrorRate("Tears", class); !ok {
 		t.Fail()
 	}
 }
@@ -56,9 +59,16 @@ func TestGetBestRule(t *testing.T) {
 		t.Fail()
 	}
 
-	if rule, ok := r.GetBestRule(); ok {
-		log.Printf("Best rule: Class=%s, Rules=%v, Total error=%f\n",
-			rule.Key, rule.Rules, rule.TotalError)
+	if rule, ok := r.GetBestRule(class); ok {
+		tmp := ""
+		for a, b := range *rule.Rules {
+			tmp += fmt.Sprintf("If '%s' then ", a)
+			for x, y := range b {
+				tmp += fmt.Sprintf("'%s' (error: %f), ", x, y)
+			}
+		}
+		log.Printf("Best rule: Class=%s, Attribute=%s, Rules=[%s] Total error=%f, Accuracy=%f\n",
+			class, rule.Key, tmp, rule.TotalError, 1-rule.TotalError)
 	} else {
 		t.Fail()
 	}

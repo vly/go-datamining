@@ -23,8 +23,8 @@ func TestGetResult(t *testing.T) {
 	}
 
 	if rule, ok := z.GetResult("Lenses"); ok {
-		log.Printf("ZeroR results: Class=%s, Rules=%v, Total error=%f\n",
-			rule.Key, rule.Rules, rule.TotalError)
+		log.Printf("ZeroR results: Class=%s, Rules=%v, Total error=%f, Accuracy=%f\n",
+			rule.Key, *rule.Rules, rule.TotalError, (1 - rule.TotalError))
 	} else {
 		t.Fail()
 	}

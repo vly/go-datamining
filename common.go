@@ -7,6 +7,12 @@ import (
 	"os"
 )
 
+type Result struct {
+	Key        string
+	TotalError float32
+	Rules      *map[string]float32
+}
+
 func FromCSV(filename string) (records *[][]string, err error) {
 	csvFile, err := os.Open(filename)
 	if err != nil {

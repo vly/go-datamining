@@ -7,10 +7,10 @@ type OneR struct {
 	MinBuckets int
 }
 
-type Result struct {
+type OneResult struct {
 	Key        string
 	TotalError float32
-	Rules      *map[string]float32
+	Rules      *map[string]map[string]float32
 }
 
 func (oner *OneR) getKeyLoc(key string) (int, bool) {
@@ -23,9 +23,10 @@ func (oner *OneR) getKeyLoc(key string) (int, bool) {
 	return -1, false
 }
 
-func (oner *OneR) GetInstance(key string) (results map[string]map[string]int, ok bool) {
+func (oner *OneR) GetInstance(key string, class string) (results map[string]map[string]int, ok bool) {
 	loc, ok := oner.getKeyLoc(key)
-	resultloc := len((*oner.Data)[0]) - 1
+	resultloc, ok := oner.getKeyLoc(class)
+	// resultloc := len((*oner.Data)[0]) - 1
 	if !ok || loc == resultloc {
 		ok = false
 		return
@@ -44,8 +45,8 @@ func (oner *OneR) GetInstance(key string) (results map[string]map[string]int, ok
 	return
 }
 
-func (oner *OneR) GetRules(key string) (*map[string]string, bool) {
-	if data, ok := oner.GetInstance(key); ok {
+func (oner *OneR) GetRules(key string, class string) (*map[string]string, bool) {
+	if data, ok := oner.GetInstance(key, class); ok {
 		rules := make(map[string]string)
 		for a, b := range data {
 			rules[a] = ""
@@ -68,12 +69,13 @@ func (oner *OneR) GetRules(key string) (*map[string]string, bool) {
 	return new(map[string]string), false
 }
 
-func (oner *OneR) GetErrorRate(key string) (*map[string]float32, bool) {
-	if rules, ok := oner.GetRules(key); ok {
-		output := make(map[string]float32)
+func (oner *OneR) GetErrorRate(key string, class string) (*map[string]map[string]float32, bool) {
+	if rules, ok := oner.GetRules(key, class); ok {
+		output := make(map[string]map[string]float32)
 		loc, _ := oner.getKeyLoc(key)
 		n := len(*oner.Data)
-		resultloc := len((*oner.Data)[0]) - 1
+		resultloc, _ := oner.getKeyLoc(class)
+		// resultloc := len((*oner.Data)[0]) - 1
 		for a, b := range *rules {
 			mistakes := 0
 			instances := 0
@@ -85,20 +87,23 @@ func (oner *OneR) GetErrorRate(key string) (*map[string]float32, bool) {
 					}
 				}
 			}
-			output[a] = float32(mistakes) / float32(n-1)
+			output[a] = map[string]float32{b: float32(mistakes) / float32(n-1)}
 		}
 		return &output, true
 	}
-	return new(map[string]float32), false
+	return new(map[string]map[string]float32), false
 }
 
-func (oner *OneR) GetBestRule() (result *Result, ok bool) {
-	output := make(map[string]*Result)
+func (oner *OneR) GetBestRule(class string) (result *OneResult, ok bool) {
+	output := make(map[string]*OneResult)
 	for _, key := range (*oner.Data)[0] {
-		if rules, ok := oner.GetErrorRate(key); ok {
-			output[key] = &Result{key, float32(0), rules}
+		if rules, ok := oner.GetErrorRate(key, class); ok {
+			output[key] = &OneResult{key, float32(0), rules}
 			for _, mistake := range *rules {
-				output[key].TotalError += mistake
+				for _, z := range mistake {
+					output[key].TotalError += z
+				}
+
 			}
 		}
 	}
