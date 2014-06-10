@@ -1,6 +1,7 @@
-package godatamining
+package rules
 
 import (
+	common "../."
 	"fmt"
 	"log"
 	"testing"
@@ -11,7 +12,7 @@ const class = "Lenses"
 func initOneR() (*OneR, bool) {
 	csv_file := "datasets/lenses.csv"
 	oner := new(OneR)
-	data, err := FromCSV(csv_file)
+	data, err := common.FromCSV(csv_file)
 	if err != nil {
 		return oner, false
 	}

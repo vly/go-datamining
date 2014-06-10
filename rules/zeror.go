@@ -1,4 +1,6 @@
-package godatamining
+package rules
+
+import common "../."
 
 type ZeroR struct {
 	Data *[][]string
@@ -38,7 +40,7 @@ func (z *ZeroR) GetRules(successKey string) (string, bool) {
 	return "", false
 }
 
-func (z *ZeroR) GetErrorRate(key string) (*Result, bool) {
+func (z *ZeroR) GetErrorRate(key string) (*common.Result, bool) {
 	if rule, ok := z.GetRules(key); ok {
 		loc, _ := z.getKeyLoc(key)
 		n := len(*z.Data)
@@ -50,14 +52,14 @@ func (z *ZeroR) GetErrorRate(key string) (*Result, bool) {
 
 		}
 		output := float32(mistakes) / float32(n-1)
-		out := &Result{key, output, &map[string]float32{rule: output}}
+		out := &common.Result{key, output, &map[string]float32{rule: output}}
 		return out, true
 	}
 
-	return new(Result), false
+	return new(common.Result), false
 }
 
-func (z *ZeroR) GetResult(successKey string) (*Result, bool) {
+func (z *ZeroR) GetResult(successKey string) (*common.Result, bool) {
 	return z.GetErrorRate(successKey)
 
 }

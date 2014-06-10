@@ -1,6 +1,7 @@
-package godatamining
+package rules
 
 import (
+	common "../."
 	"log"
 	"testing"
 )
@@ -8,7 +9,7 @@ import (
 func initZeroR() (*ZeroR, bool) {
 	csv_file := "datasets/lenses.csv"
 	z := new(ZeroR)
-	data, err := FromCSV(csv_file)
+	data, err := common.FromCSV(csv_file)
 	if err != nil {
 		return z, false
 	}

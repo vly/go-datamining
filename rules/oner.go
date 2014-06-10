@@ -1,6 +1,6 @@
 // Imlementation of One_R
 
-package godatamining
+package rules
 
 type OneR struct {
 	Data       *[][]string

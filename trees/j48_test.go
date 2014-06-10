@@ -1,6 +1,7 @@
 package godatamining
 
 import (
+	common "../."
 	"log"
 	"testing"
 )
@@ -8,7 +9,7 @@ import (
 func initJ48() (*J48, bool) {
 	csv_file := "datasets/lenses.csv"
 	oner := new(J48)
-	data, err := FromCSV(csv_file)
+	data, err := common.FromCSV(csv_file)
 	if err != nil {
 		return oner, false
 	}
