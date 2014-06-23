@@ -23,7 +23,7 @@ func initJ48() (*J48, bool) {
 // Test Frequency iteration
 func TestGetEntropy(t *testing.T) {
 	if j, ok := initJ48(); ok {
-		if attr, ok := j.getFrequencyX2("Lenses", "Tears"); ok {
+		if attr, ok := j.getFrequencyX("Lenses", "Tears"); ok {
 			j.getEntropy(attr)
 			return
 		}
@@ -43,9 +43,9 @@ func TestGetFrequency(t *testing.T) {
 }
 
 // Test Frequency iteration
-func TestGetFrequencyX2(t *testing.T) {
+func TestGetFrequencyX(t *testing.T) {
 	if j, ok := initJ48(); ok {
-		if _, ok := j.getFrequencyX2("Lenses", "Prescription"); ok {
+		if _, ok := j.getFrequencyX("Lenses", "Prescription"); ok {
 			return
 		}
 	}
@@ -55,7 +55,7 @@ func TestGetFrequencyX2(t *testing.T) {
 // Test split table on a given predictor attribute
 func TestSplitTable(t *testing.T) {
 	if j, ok := initJ48(); ok {
-		if out := j.splitTable("Prescription"); len(*out) > 0 {
+		if out := j.splitTable(j.Data, "Prescription"); len(*out) > 0 {
 			return
 		}
 	}
@@ -78,17 +78,15 @@ func TestGetInfoGain(t *testing.T) {
 	t.Fail()
 }
 
-// func TestGetInfo(t *testing.T) {
-// 	// get entropy
-// 	if j, ok := initJ48(); ok {
-// 		if out, ok := j.GetInfo(j.Data, "Tears"); ok {
-// 			log.Println(out)
-// 			return
-// 		}
-// 	}
-// 	t.Fail()
+func TestBuildTree(t *testing.T) {
+	// get entropy
+	if j, ok := initJ48(); ok {
+		j.buildTree(j.Data, "Lenses")
+		return
+	}
+	t.Fail()
 
-// }
+}
 
 // func TestGetInfox(t *testing.T) {
 // 	if j, ok := initJ48(); ok {

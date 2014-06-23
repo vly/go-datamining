@@ -22,6 +22,12 @@ type Value struct {
 	Total int
 }
 
+// Leaf
+type Leaf struct {
+	Label    string
+	InfoGain float64
+}
+
 // Find the index of a given column header
 func (j *J48) getKeyLoc(key string) (int, bool) {
 	keys := (*j.Keys)
@@ -36,10 +42,10 @@ func (j *J48) getKeyLoc(key string) (int, bool) {
 // Calculate the entropy of a given row
 func (j *J48) calcEntropy(row *Value) (float64, bool) {
 	var total float64 = 0.0
-	for a, b := range row.Data {
+	for _, b := range row.Data {
 		prob := float64(b) / float64(row.Total)
 		total -= prob * math.Log2(prob)
-		log.Println(a, ": ", b, prob, total, row.Total)
+		// log.Println(a, ": ", b, prob, total, row.Total)
 	}
 	return total, true
 }
@@ -47,13 +53,13 @@ func (j *J48) calcEntropy(row *Value) (float64, bool) {
 // Get Entropy using the frequency tables of class and predictor attributes
 func (j *J48) getEntropy(attr *Attribute) (float64, bool) {
 	var total float64 = 0.0
-	for a, b := range attr.Rows {
+	for _, b := range attr.Rows {
 		prob := float64(b.Total) / float64(attr.Total)
 		ent, _ := j.calcEntropy(b)
-		log.Println("getEntropy", a, prob, ent, b.Total, attr.Total)
+		// log.Println("getEntropy", a, prob, ent, b.Total, attr.Total)
 		total += prob * ent
 	}
-	log.Println("total: ", total)
+	// log.Println("total: ", total)
 	return total, true
 }
 
@@ -88,7 +94,7 @@ func (j *J48) GetFrequency(data *[][]string, class string) (attr *Attribute, oka
 }
 
 // As above but produces as DataFrame-esk slice
-func (j *J48) getFrequencyX2(class string, predictor string) (attr *Attribute, rOk bool) {
+func (j *J48) getFrequencyX(class string, predictor string) (attr *Attribute, rOk bool) {
 	if tLoc, ok := j.getKeyLoc(predictor); ok {
 		if cLoc, ok := j.getKeyLoc(class); ok {
 			// classSet := j.genSet(class)
@@ -121,31 +127,18 @@ func (j *J48) getFrequencyX2(class string, predictor string) (attr *Attribute, r
 
 func (j *J48) getInfo(data *[][]string, predictor string, class string) float64 {
 	total := 0.0
-	out := j.splitTable(predictor)
-	for a, b := range *out {
+	out := j.splitTable(data, predictor)
+	for _, b := range *out {
 		if attr, ok := j.GetFrequency(&b, class); ok {
-			log.Println("dataset", a, b)
+			// log.Println("dataset", a, b)
 			if tmp, ok := j.getEntropy(attr); ok {
 				total += float64(attr.Total) / float64(len(*j.Data)) * tmp
 			}
 		}
 	}
-	log.Println("getInfo", total)
+	// log.Println("getInfo", total)
 	return total
 }
-
-// func (j *J48) GetFrequency(class string, value string) (int, bool) {
-// 	total := 0
-// 	if loc, ok := j.getKeyLoc(class); ok {
-// 		for i := 1; i < len(*j.Data); i++ {
-// 			if (*j.Data)[i][loc] == value {
-// 				total += 1
-// 			}
-// 		}
-// 		return total, true
-// 	}
-// 	return total, false
-// }
 
 // Create a set out of a given column
 func (j *J48) genSet(class string) (output []string) {
@@ -173,47 +166,58 @@ func indexOf(set []string, key string) (int, bool) {
 }
 
 // splitTable splits data on a given string
-func (j *J48) splitTable(class string) *[][][]string {
+func (j *J48) splitTable(data *[][]string, class string) *[][][]string {
 	set := j.genSet(class)
 	loc, _ := j.getKeyLoc(class)
 	output := make([][][]string, len(set))
-	for i := 0; i < len(*j.Data); i++ {
-		temp, _ := indexOf(set, (*j.Data)[i][loc])
-		output[temp] = append(output[temp], (*j.Data)[i])
+	for i := 0; i < len(*data); i++ {
+		temp, _ := indexOf(set, (*data)[i][loc])
+		output[temp] = append(output[temp], (*data)[i])
 	}
 	return &output
 }
 
-// func (j *J48) GetInfo(table *[][]string, class string) (float64, bool) {
-// 	var total float64
-// 	set := j.genSet(class)
-// 	for _, a := range set {
-// 		b, _ := j.GetFrequency(class, a)
-// 		x := float64(b) / float64(len(*table)-1)
-// 		total += x * float64(math.Pow(float64(x), 2))
-// 	}
-// 	return -total, true
-// }
-
-// func (j *J48) GetInfox(class string) (float64, bool) {
-// 	var total float64
-// 	tables := j.splitTable(class)
-// 	for i := 0; i < len(*tables); i++ {
-// 		if info, ok := j.GetInfo(&(*tables)[i], class); ok {
-// 			total += float64(len((*tables)[i])) / float64(len(*j.Data)) * info
-// 		}
-// 	}
-// 	return total, true
-// }
-
 func (j *J48) getInfoGain(data *[][]string, predictor string, class string) (float64, bool) {
 	output := 0.0
 	info := j.getInfo(data, predictor, class)
-	if attr, ok := j.GetFrequency(j.Data, class); ok {
-		if orig, ok := j.getEntropy(attr); ok {
-			log.Println(orig, info, orig-info)
-			return output, true
+	if info != 0.0 {
+		if attr, ok := j.GetFrequency(j.Data, class); ok {
+			if orig, ok := j.getEntropy(attr); ok {
+				log.Println(orig, info, orig-info)
+				output = orig - info
+				return output, true
+			}
 		}
 	}
 	return output, false
+}
+
+// traverse
+func (j *J48) buildTree(data *[][]string, class string) bool {
+	if len(*data) == 0 {
+		return false
+	}
+	currentKey := new(Leaf)
+	currentKey.InfoGain = 0.0
+	for _, b := range *j.Keys {
+		if b != class {
+			log.Println("running", b)
+			x, _ := j.getInfoGain(data, b, class)
+			if x > currentKey.InfoGain {
+				currentKey.InfoGain = x
+				currentKey.Label = b
+			}
+		}
+	}
+	log.Println("Build tree", currentKey.Label, currentKey.InfoGain, data)
+	if currentKey.InfoGain > 0.1 && len(*data) > 4 {
+		tmp := *j.splitTable(data, currentKey.Label)
+		if len(tmp) > 1 {
+			for _, y := range tmp {
+				j.buildTree(&y, class)
+			}
+		}
+	}
+	return true
+
 }
