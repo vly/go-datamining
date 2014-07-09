@@ -9,6 +9,7 @@ package utilities
 import (
 	"../."
 	"log"
+	"rand"
 	"strconv"
 	"strings"
 )
@@ -25,6 +26,15 @@ func (d *Dataset) LoadCSV(filename string) bool {
 		return true
 	}
 	return false
+}
+
+func (d *Dataset) Shuffle() (output Dataset) {
+	data = *(*d).Data
+	for i := range data {
+		j := rand.Intn(i + 1)
+		data[i], data[j] = data[j], data[i]
+	}
+	output.Data = data
 }
 
 func (d *Dataset) SplitSet(ratio string, n int) (output *[]Dataset, ok bool) {
