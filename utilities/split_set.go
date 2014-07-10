@@ -14,11 +14,20 @@ import (
 	"strings"
 )
 
+// represents a data set
 type Dataset struct {
 	Data *[][]string
 	Size uint16
 }
 
+// training/test set struct
+type TestSet struct {
+	Test  *Dataset
+	Train *Dataset
+	Split []int
+}
+
+// Import data from CSV
 func (d *Dataset) LoadCSV(filename string) bool {
 	if data, err := godatamining.FromCSV(filename); err == nil {
 		d.Data = data
@@ -28,6 +37,7 @@ func (d *Dataset) LoadCSV(filename string) bool {
 	return false
 }
 
+// Shuffle data for training/test set building
 func (d *Dataset) Shuffle() (output Dataset) {
 	data = *(*d).Data
 	for i := range data {
@@ -35,11 +45,17 @@ func (d *Dataset) Shuffle() (output Dataset) {
 		data[i], data[j] = data[j], data[i]
 	}
 	output.Data = data
+	output.Size = (*d).Size
 }
 
+// Split set into training/test set n times
 func (d *Dataset) SplitSet(ratio string, n int) (output *[]Dataset, ok bool) {
 	rsplit := strings.Split(ratio, ",")
 	total := 0.0
+	output = make([]Dataset, n)
+	for i = 0; i < n; i++ {
+		output
+	}
 	for _, a := range rsplit {
 		b, _ := strconv.Atoi(a)
 		total += b / float64(100)
@@ -48,6 +64,7 @@ func (d *Dataset) SplitSet(ratio string, n int) (output *[]Dataset, ok bool) {
 	return
 }
 
+// Output built sets into flat files
 func (d *Dataset) SaveSet(location string) bool {
 	return true
 }
