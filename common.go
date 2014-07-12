@@ -38,3 +38,14 @@ func FromCSV(filename string) (records *[][]string, err error) {
 	}
 	return
 }
+
+func ToCSV(filename string, header *[]string) bool {
+	csvFile, err := os.Open(filename)
+	if err != nil {
+		return false
+	}
+	defer csvFile.Close()
+	writer := csv.NewWriter(csvFile)
+
+	return ok
+}

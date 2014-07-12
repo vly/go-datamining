@@ -2,6 +2,7 @@
 
 // - Split into training and test sets
 // - Split into training, verification and test sets
+// - Sample if set is too large
 // - Bootstrap set
 
 package utilities
@@ -9,7 +10,7 @@ package utilities
 import (
 	"../."
 	"log"
-	"rand"
+	"math/rand"
 	"strconv"
 	"strings"
 )
@@ -22,16 +23,17 @@ type Dataset struct {
 
 // training/test set struct
 type TestSet struct {
-	Test  *Dataset
 	Train *Dataset
-	Split []int
+	Test  *Dataset
+	Split []float64
 }
 
 // Import data from CSV
 func (d *Dataset) LoadCSV(filename string) bool {
 	if data, err := godatamining.FromCSV(filename); err == nil {
-		d.Data = data
-		d.Size = uint16(len(*data))
+		tmp := (*data)[1:]
+		d.Data = &tmp
+		d.Size = uint16(len(*data) - 1)
 		return true
 	}
 	return false
@@ -39,28 +41,43 @@ func (d *Dataset) LoadCSV(filename string) bool {
 
 // Shuffle data for training/test set building
 func (d *Dataset) Shuffle() (output Dataset) {
-	data = *(*d).Data
+	data := *(*d).Data
 	for i := range data {
 		j := rand.Intn(i + 1)
 		data[i], data[j] = data[j], data[i]
 	}
-	output.Data = data
+	output.Data = &data
 	output.Size = (*d).Size
+	return
 }
 
 // Split set into training/test set n times
-func (d *Dataset) SplitSet(ratio string, n int) (output *[]Dataset, ok bool) {
+func (d *Dataset) SplitSet(ratio string, n int) (output []TestSet, ok bool) {
 	rsplit := strings.Split(ratio, ",")
-	total := 0.0
-	output = make([]Dataset, n)
-	for i = 0; i < n; i++ {
-		output
-	}
-	for _, a := range rsplit {
+	split := make([]float64, len(rsplit))
+	for i, a := range rsplit {
 		b, _ := strconv.Atoi(a)
-		total += b / float64(100)
+		split[i] = float64(b) / float64(100)
 	}
-	log.Println(total)
+
+	output = make([]TestSet, n)
+	for i := 0; i < n; i++ {
+		temp := d.Shuffle()
+		output[i].Split = split
+		output[i].Train = new(Dataset)
+		output[i].Test = new(Dataset)
+
+		train := (*temp.Data)[:int(float64(temp.Size)*split[0])]
+		test := (*temp.Data)[int(float64(temp.Size)*split[0])+1:]
+
+		output[i].Train.Data = &train
+		output[i].Train.Size = uint16(float64(temp.Size) * split[0])
+
+		output[i].Test.Data = &test
+		output[i].Test.Size = uint16(float64(temp.Size) * split[1])
+		log.Println(temp.Size, output[i].Test.Size, output[i].Train.Size, test)
+	}
+	ok = true
 	return
 }
 
